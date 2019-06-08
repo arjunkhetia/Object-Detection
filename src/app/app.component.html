@@ -1,0 +1,90 @@
+<router-outlet></router-outlet>
+<div class="container">
+  <div class="jumbotron jumbotron-fluid text-center">
+    <div class="container">
+      <h1 class="display-4">{{ title }}</h1>
+      <p class="lead">{{ introline }}</p>
+    </div>
+  </div>
+  <div *ngIf="modelLoaded" class="row">
+    <div class="col text-center mb-3">
+      <div class="dropdown">
+        <button class="btn btn-warning dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          {{ modelText }}
+        </button>
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+          <a class="dropdown-item" *ngFor="let model of modelArray" (click)="selectModel(model)">{{ model['name'] }}</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="!modelLoaded" class="row">
+    <div class="progress">
+      <div class="progress-bar progress-bar-striped bg-success progress-bar-animated" role="progressbar">
+        <b class="progress-text">Loading Model...</b>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="modelLoaded" class="row">
+    <div class="col text-center mb-3">
+      <button type="button" class="btn btn-lg btn-block" [ngClass]="imgBtnStatus ? 'btn-primary' : 'btn-secondary'" (click)="imageMode();">
+        <i class="fa fa-picture-o" aria-hidden="true"></i> &nbsp; Image
+      </button>
+    </div>
+    <div class="col text-center mb-3">
+      <button type="button" class="btn btn-lg btn-block" [ngClass]="webBtnStatus ? 'btn-primary' : 'btn-secondary'" (click)="videoMode()">
+        <i class="fa fa-camera" aria-hidden="true"></i> &nbsp; Webcam
+      </button>
+    </div>
+  </div>
+  <div *ngIf="modelLoaded && webBtnStatus" class="row">
+    <div class="col"></div>
+    <div class="col mb-3 text-center">
+      <button type="button" class="btn btn-success" (click)="snapPhoto()"><i class="fa fa-camera-retro" aria-hidden="true"></i> Snap Photo </button>
+    </div>
+    <div class="col mb-3 text-center">
+      <button type="button" class="btn btn-danger" (click)="realTimeVideo()"><i class="fa fa-video-camera" aria-hidden="true"></i> Real Time Video </button>
+    </div>
+    <div class="col"></div>
+  </div>
+  <div class="row">
+    <div *ngIf="modelLoaded && imgBtnStatus" class="col mb-3 text-center">
+      <img id="image" class="img-responsive img-border" [src]="imageSrc" alt="No Image" (load)="predict();" width="{{ imageWidth }}" height="{{ imageHeight }}" crossorigin="anonymous">
+    </div>
+    <div [hidden]="!modelLoaded || !webBtnStatus" class="col mb-3">
+      <video #videoElement class="img-border" width="{{ videoWidth }}" height="{{ videoHeight }}"></video>
+    </div>
+    <div [hidden]="!modelLoaded" class="col mb-3">
+      <canvas #videoCanvas id="canvas" class="img-border" width="{{ canvasWidth }}" height="{{ canvasHeight }}"></canvas>
+    </div>
+    <div *ngIf="modelLoaded" class="col mb-3">
+      <div class="text-center prediction-text">
+        <h4>Predictions : </h4>
+      </div>
+      <div class="row" *ngFor="let predict of prediction, let i = index;">
+        <div class="col text-left mb-3">
+          <h5><span style="border-radius: 50%;" [style.backgroundColor]="predict['colour']">&nbsp; &nbsp; </span>&nbsp; {{ predict['class'] }}</h5>
+        </div>
+        <div class="col text-right mb-3">
+          <h5>{{ (predict['score'] * 100).toFixed(2) }} %</h5>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="modelLoaded && imgBtnStatus" class="row">
+    <div class="col upload-box">
+      <div class="hold">
+        <span *ngIf="!fileError" class="file-text">{{ fileName }}</span>
+        <span *ngIf="fileError" class="file-text">
+          <i class="alert alert-danger" role="alert">
+            Only images are supported.
+          </i>
+        </span>
+        <span class="btn-file">
+          <i class="fa fa-folder-open" aria-hidden="true"></i> Browse File
+          <input #file type="file" (change)="browseFile(file.files)">
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
